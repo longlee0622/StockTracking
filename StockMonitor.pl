@@ -38,7 +38,7 @@ foreach (@list) {
 
 while (1) {
         print "--------------------------------------\n";
-        print "Time\t\tID\tName\tPrice\tChange%\n";
+        print "Time      ID      Name\t\tPrice\tChange%\n";
         my @raw=`$command`;
 		foreach (@raw) {
 			chomp;
@@ -46,7 +46,7 @@ while (1) {
 			next if ($_ eq "");
 			if(/^var hq_str_[szh]{2}([\d]{6})="([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),.*"/) {
 			my $change = sprintf("%5.2f%%",($5-$4)/$4*100);
-            my $output = $33."\t".$1."\t".$2."\t".$5."\t".$change."\n"; # Time Id Name Price change% 
+            my $output = $33."  ".$1."  ".$2."\t".$5."\t".$change."\n"; # Time Id Name Price change% 
             print $output;
 		}
 	}
