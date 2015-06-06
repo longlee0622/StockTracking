@@ -3,6 +3,7 @@
 
 use strict;
 use warnings;
+use Encode;
 use Getopt::Long;
 
 my $input;
@@ -34,13 +35,14 @@ foreach (@list) {
 	$command = $command.$market.$_.",";
 }
 
-my @raw=`$command`;
 
 while (1) {
         print "--------------------------------------\n";
-        print "Time\t\tID\tName\tPrice\tchange%\n";
+        print "Time\t\tID\tName\tPrice\tChange%\n";
+        my @raw=`$command`;
 		foreach (@raw) {
 			chomp;
+            Encode::from_to($_, "gb2312", "utf8");
 			next if ($_ eq "");
 			if(/^var hq_str_[szh]{2}([\d]{6})="([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),.*"/) {
 			my $change = sprintf("%5.2f%%",($5-$4)/$4*100);
@@ -48,5 +50,5 @@ while (1) {
             print $output;
 		}
 	}
-	sleep(3);
+	sleep($interval);
 }
