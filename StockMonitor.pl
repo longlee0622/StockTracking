@@ -4,7 +4,15 @@
 use strict;
 use warnings;
 use Encode;
+use Class::Struct;
 use Getopt::Long;
+
+struct Info => {
+    ID          => '$',
+    name        => '$',
+    volumn      => '$',
+    lastClose   => '$',
+};
 
 my $input;
 my $interval;
@@ -17,11 +25,12 @@ Getopt::Long::GetOptions(
 
 $interval=3 if (!defined($interval));
 
+# read input list
 open (my $fh, "$input") or die "$!";
 my @list=<$fh>;
 close $fh;
 
-# build curl command
+my @InfoList;
 my $command = "curl -s http://hq.sinajs.cn/list=";
 foreach (@list) {
     chomp;
@@ -32,11 +41,23 @@ foreach (@list) {
     }else {
         $market="sz";
     }
-    $command = $command.$market.$_.",";
+    # create InfoList & build command
+    if (/([0-9]+)\s+([0-9]+)/) {
+        my $thisInfo = Info->new();
+        $thisInfo->ID($1);
+        $thisInfo->volumn($2);
+        push @InfoList, $thisInfo;
+        $command = $command.$market.$thisInfo->ID.",";
+
+    }else {
+        print "bad stock format\n";
+        exit;
+    }
+
 }
 
-
 while (1) {
+        my $DeltaSum = 0;
         print "--------------------------------------\n";
         print "Time      ID      Name\t\tPrice\tChange%\n";
         my @raw=`$command`;
@@ -48,7 +69,12 @@ while (1) {
             my $change = sprintf("%5.2f%%",($5-$4)/$4*100);
             my $output = $33."  ".$1."  ".$2."\t".$5."\t".$change."\n"; # Time Id Name Price change% 
             print $output;
+            # calculate portfolio delta
+            foreach (@InfoList) {
+                $DeltaSum += $_->volumn * ($5-$4) if ($1 == $_->ID); 
+            }
         }
     }
+    printf("Portfolio Delta = %.2f\n", $DeltaSum);
     sleep($interval);
 }
