@@ -35,6 +35,7 @@ my $command = "curl -s http://hq.sinajs.cn/list=";
 foreach (@list) {
     chomp;
     next if ($_ eq "");
+    next if (/^#/);
     my $market;
     if (/^6/) {
         $market="sh";
