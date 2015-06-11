@@ -6,6 +6,7 @@ use warnings;
 use Encode;
 use Class::Struct;
 use Getopt::Long;
+use Term::ANSIColor;
 
 struct Info => {
     ID          => '$',
@@ -69,7 +70,11 @@ while (1) {
             if(/^var hq_str_[szh]{2}([\d]{6})="([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),.*"/) {
             my $change = sprintf("%5.2f%%",($5-$4)/$4*100);
             my $output = $33."  ".$1."  ".$2."\t".$5."\t".$change."\n"; # Time Id Name Price change% 
-            print $output;
+            if ($5 < $4) {
+                print color("green"), $output, color("reset");
+            }else {
+                print color("red"), $output, color("reset");
+            }
             # calculate portfolio delta
             foreach (@InfoList) {
                 $DeltaSum += $_->volumn * ($5-$4) if ($1 == $_->ID); 
